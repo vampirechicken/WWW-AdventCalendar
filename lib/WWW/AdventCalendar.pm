@@ -1,6 +1,7 @@
 package WWW::AdventCalendar;
-use Moose;
 # ABSTRACT: a calendar for a month of articles (on the web)
+
+use Moose;
 
 use MooseX::StrictConstructor;
 
@@ -96,7 +97,7 @@ Finally, running L<advcal> is easy, too.  Here is its usage:
     --today           the day we treat as "today"; default to today
 
     -t --tracker      include Google Analytics; -t TRACKER-ID
-    -y --year-links   place year links at the bottom of the page 
+    -y --year-links   place year links at the bottom of the page
 
 Options given on the command line override those loaded form configuration.  By
 running this program every day, we cause the calendar to be rebuilt, adding any
@@ -508,11 +509,11 @@ sub read_articles {
     die "no title set in $file\n" unless $document->header('title');
 
     my $article  = WWW::AdventCalendar::Article->new(
-      body   => $document->body,
-      date   => _parse_isodate($isodate),
-      title  => $document->header('title'),
-      topic  => $document->header('topic'),
-      author => $document->header('author')
+      body   => scalar $document->body,
+      date   => scalar _parse_isodate($isodate),
+      title  => scalar $document->header('title'),
+      topic  => scalar $document->header('topic'),
+      author => scalar $document->header('author')
              // scalar $self->default_author,
       calendar => $self,
     );
