@@ -12,7 +12,6 @@ use Color::Palette::Schema;
 use DateTime::Format::W3CDTF;
 use DateTime;
 use DateTime;
-use Email::Simple;
 use File::Basename;
 use File::Copy qw(copy);
 use File::Path 2.07 qw(remove_tree);
@@ -497,17 +496,24 @@ sub read_articles {
 
     open my $fh, '<:encoding(utf-8)', $file;
     my $content = do { local $/; <$fh> };
-    my $document = Email::Simple->new($content);
+    my ($header, $body) = split /\n{2,}/, $content, 2;
+
+    my %header;
+    for my $line (split /\n/, $header) {
+      my ($name, $value) = split /\s*:\s*/, $line, 2;
+      $header{lc $name} = $value;
+    }
+
     my $isodate  = $name;
 
-    die "no title set in $file\n" unless $document->header('title');
+    die "no title set in $file\n" unless $header{title};
 
     my $article  = WWW::AdventCalendar::Article->new(
-      body   => scalar $document->body,
+      body   => scalar $body,
       date   => scalar _parse_isodate($isodate),
-      title  => scalar $document->header('title'),
-      topic  => scalar $document->header('topic'),
-      author => scalar $document->header('author')
+      title  => $header{title},
+      topic  => $header{topic},
+      author => $header{author}
              // scalar $self->default_author,
       calendar => $self,
     );
